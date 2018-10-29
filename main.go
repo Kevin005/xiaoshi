@@ -1,13 +1,13 @@
 package main
 
 import (
-	"xiaoshi/util"
-	"xiaoshi/app"
+	"xiaoshi/conf"
+	"xiaoshi/handler"
 )
 
 func main() {
-	config := util.GetConfig()
-	app := &app.App{}
+	config := conf.GetConfig()
+	app := &handler.App{}
 	app.Initialize(config)
 	app.Run(":9090")
 }

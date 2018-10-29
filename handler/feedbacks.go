@@ -3,9 +3,10 @@ package handler
 import (
 	"net/http"
 	"github.com/jinzhu/gorm"
-	"xiaoshi/app/model"
+	"xiaoshi/model"
 	"encoding/json"
-	"xiaoshi/app/model/response"
+	"xiaoshi/model/response"
+	"xiaoshi/conf"
 )
 
 func CreateFeedback(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -15,21 +16,21 @@ func CreateFeedback(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		feedback := model.Feedbacks{}
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&feedback); err != nil {
-			respondError(w, http.StatusBadRequest, err.Error())
+			respondError(w, conf.StatusBadRequest, err.Error())
 		}
 		defer r.Body.Close()
 		if err := db.Save(&feedback).Error; err != nil {
-			respondError(w, http.StatusInternalServerError, err.Error())
+			respondError(w, conf.StatusInternalServerError, err.Error())
 			return
 		}
 		respFeedback.Data.Feedback = feedback
 		respFeedback.Message = "pass"
 		respFeedback.Success = "0"
-		respondJSON(w, http.StatusCreated, respFeedback)
+		respondJSON(w, conf.StatusCreated, respFeedback)
 	} else {
 		respFeedback.Message = "reject"
 		respFeedback.Success = "1"
-		respondJSON(w, http.StatusInternalServerError, respFeedback)
+		respondJSON(w, conf.StatusInternalServerError, respFeedback)
 	}
 }
 

@@ -3,31 +3,36 @@ package handler
 import (
 	"github.com/jinzhu/gorm"
 	"net/http"
-	"xiaoshi/app/model/response"
-	"xiaoshi/app/model"
+	"xiaoshi/model/response"
+	"xiaoshi/model"
 	"encoding/json"
 	"time"
+	"xiaoshi/conf"
+	"xiaoshi/util"
 )
 
 func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	user := model.Users{}
+	user := &model.Users{}
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+	if err := decoder.Decode(user); err != nil {
+		respondError(w, conf.StatusBadRequest, err.Error())
 	}
 	defer r.Body.Close()
 	user.CreateTime = time.Now().Unix()
-	if err := db.Save(&user).Error; err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+	if err := db.Save(user).Error; err != nil {
+		respondError(w, conf.StatusInternalServerError, err.Error())
 		return
 	}
 	//设置到redis
-	setTokenToCache(user.Token)
-	respUser := response.RespUser{}
-	respUser.Data = user
-	respUser.Message = "pass"
-	respUser.Success = "0"
-	respondJSON(w, http.StatusCreated, respUser)
+	util.SetTokenToCache(user.Token)
+	respUser := &response.RespUser{
+		RespModel: &response.RespModel{
+			Success: "0",
+			Message: "pass",
+		},
+		Data: user,
+	}
+	respondJSON(w, conf.StatusCreated, respUser)
 }
 
 func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -35,25 +40,25 @@ func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respUser := response.RespUser{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+		respondError(w, conf.StatusBadRequest, err.Error())
 	}
 	defer r.Body.Close()
 	if hadToken, _ := checkToken(db, user.Token); hadToken {
 		//设置到redis
-		setTokenToCache(user.Token)
+		util.SetTokenToCache(user.Token)
 		db.First(&user, "token = ?", user.Token)
 		respUserData := response.RespUserData{}
 		respUserData.User = user
 		respUser.Data = respUserData
 		respUser.Message = "pass"
 		respUser.Success = "0"
-		respondJSON(w, http.StatusCreated, respUser)
+		respondJSON(w, conf.StatusCreated, respUser)
 	} else {
 		respUser := response.RespUser{}
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "use not found"
-		respondJSON(w, http.StatusGone, respUser)
+		respondJSON(w, conf.StatusGone, respUser)
 	}
 }
 
@@ -63,7 +68,7 @@ func EditUserInfo(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respUser := response.RespUser{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&reqUser); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+		respondError(w, conf.StatusBadRequest, err.Error())
 	}
 	defer r.Body.Close()
 	if hadToken, dbUser := checkToken(db, headerToken); hadToken {
@@ -73,13 +78,13 @@ func EditUserInfo(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respUser.Data = respUserData
 		respUser.Message = "pass"
 		respUser.Success = "0"
-		respondJSON(w, http.StatusCreated, respUser)
+		respondJSON(w, conf.StatusCreated, respUser)
 	} else {
 		respUser := response.RespUser{}
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "use not found"
-		respondJSON(w, http.StatusGone, respUser)
+		respondJSON(w, conf.StatusGone, respUser)
 	}
 }
 
@@ -88,7 +93,7 @@ func EditPwd(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respUser := response.RespUser{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&reqUser); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+		respondError(w, conf.StatusBadRequest, err.Error())
 	}
 	defer r.Body.Close()
 	if reqUser.Token == "" {
@@ -96,18 +101,18 @@ func EditPwd(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "token not empty"
-		respondJSON(w, http.StatusGone, respUser)
+		respondJSON(w, conf.StatusGone, respUser)
 	} else if hadPhone, dbUser := checkPhoneNumber(db, reqUser.PhoneNumber); hadPhone {
 		db.Model(&dbUser).Update("Token", reqUser.Token)
 		respUser.Data = reqUser.Token
 		respUser.Message = "pass"
 		respUser.Success = "0"
-		respondJSON(w, http.StatusCreated, respUser)
+		respondJSON(w, conf.StatusCreated, respUser)
 	} else {
 		respUser := response.RespUser{}
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "use not found"
-		respondJSON(w, http.StatusGone, respUser)
+		respondJSON(w, conf.StatusGone, respUser)
 	}
 }

@@ -26,3 +26,13 @@ func Test_Main(t *testing.T) {
 	t.Error(1)
 
 }
+
+func Test_main1(t *testing.T) {
+	defer fmt.Println("this is defer")
+	a := 1
+	if a == 1 {
+		fmt.Println("this equal")
+		return
+	}
+
+}

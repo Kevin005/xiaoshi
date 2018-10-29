@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/jinzhu/gorm"
-	"xiaoshi/app/model"
+	"xiaoshi/model"
+	"xiaoshi/conf"
 )
 
 func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(conf.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}

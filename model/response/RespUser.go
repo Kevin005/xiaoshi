@@ -1,12 +1,12 @@
 package response
 
-import "xiaoshi/app/model"
+import "xiaoshi/model"
 
 /**
 返回对象
 */
 type RespUser struct {
-	RespModel
+	*RespModel
 	Data interface{} `json:"data"`
 }
 

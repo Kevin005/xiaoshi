@@ -1,4 +1,4 @@
-package util
+package conf
 
 type Config struct {
 	DB *DBConfig

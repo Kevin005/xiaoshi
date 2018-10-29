@@ -1,14 +1,13 @@
-package app
+package handler
 
 import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	"xiaoshi/util"
 	"log"
 	"net/http"
 	"fmt"
-	"xiaoshi/app/model"
-	"xiaoshi/app/handler"
+	"xiaoshi/model"
+	"xiaoshi/conf"
 )
 
 type App struct {
@@ -16,7 +15,7 @@ type App struct {
 	DB     *gorm.DB
 }
 
-func (a *App) Initialize(config *util.Config) {
+func (a *App) Initialize(config *conf.Config) {
 	dbURI := fmt.Sprintf("%s:%s@/%s?charset=%s&parseTime=True",
 		config.DB.Username,
 		config.DB.Password,
@@ -30,10 +29,6 @@ func (a *App) Initialize(config *util.Config) {
 	a.DB = model.DBMigrate(db)
 	a.Router = mux.NewRouter()
 	a.setRouters()
-}
-
-func (a *App) Run(host string) {
-	log.Fatal(http.ListenAndServe(host, a.Router))
 }
 
 func (a *App) setRouters() {
@@ -52,6 +47,10 @@ func (a *App) setRouters() {
 	a.Get("/xiaoshi/books/{user_id}", a.getMyBooks)
 }
 
+func (a *App) Run(host string) {
+	log.Fatal(http.ListenAndServe(host, a.Router))
+}
+
 func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("GET")
 }
@@ -64,68 +63,68 @@ func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) 
 反馈
  */
 func (a *App) CreateFeedback(w http.ResponseWriter, r *http.Request) {
-	handler.CreateFeedback(a.DB, w, r)
+	CreateFeedback(a.DB, w, r)
 }
 
 /**
 查询所有反馈
  */
 func (a *App) GetAllFeedback(w http.ResponseWriter, r *http.Request) {
-	handler.GetAllFeedback(a.DB, w, r)
+	GetAllFeedback(a.DB, w, r)
 }
 
 /**
 上传用户头像
  */
 func (a *App) UploadAvatar(w http.ResponseWriter, r *http.Request) {
-	handler.UploadAvatar(w, r)
+	UploadAvatar(w, r)
 }
 
 /**
 获取用户头像
  */
 func (a *App) GetAvatar(w http.ResponseWriter, r *http.Request) {
-	handler.GetAvatar(w, r)
+	GetAvatar(w, r)
 }
 
 /**
 用户注册
  */
 func (a *App) Register(w http.ResponseWriter, r *http.Request) {
-	handler.Register(a.DB, w, r)
+	Register(a.DB, w, r)
 }
 
 /**
 用户登录
  */
 func (a *App) Login(w http.ResponseWriter, r *http.Request) {
-	handler.Login(a.DB, w, r)
+	Login(a.DB, w, r)
 }
 
 /**
 修改密码
  */
 func (a *App) EditPwd(w http.ResponseWriter, r *http.Request) {
-	handler.EditPwd(a.DB, w, r)
+	EditPwd(a.DB, w, r)
 }
 
 /**
 修改用户信息
  */
 func (a *App) EditUserInfo(w http.ResponseWriter, r *http.Request) {
-	handler.EditUserInfo(a.DB, w, r)
+	EditUserInfo(a.DB, w, r)
 }
 
 /**
 发布一本书
  */
 func (a *App) CreateBook(w http.ResponseWriter, r *http.Request) {
-	handler.CreateBook(a.DB, w, r)
+	CreateBook(a.DB, w, r)
 }
 
 /**
 获取我所有在读的书
  */
 func (a *App) getMyBooks(w http.ResponseWriter, r *http.Request) {
-	handler.GetMyBooks(a.DB, w, r)
+	GetMyBooks(a.DB, w, r)
 }

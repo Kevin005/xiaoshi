@@ -1,6 +1,6 @@
 package response
 
-import "xiaoshi/app/model"
+import "xiaoshi/model"
 
 /**
 返回对象
