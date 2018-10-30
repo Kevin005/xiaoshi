@@ -10,6 +10,12 @@ import (
 	"syscall"
 )
 
+var cfgYaml = &conf.ConfigYaml{} //全局配置文件
+
+func init() {
+	conf.GetCfgYaml(cfgYaml)
+}
+
 func main() {
 	logcf := flag.String("lf", "log4go.xml", "log xml file path")
 	flag.Parse()
@@ -17,7 +23,8 @@ func main() {
 		log.LoadConfiguration(*logcf)
 	}
 	log.Info("======= main start =======")
-	config := conf.GetConfig()
+	//log.Info("ip is %s", cfgYaml.Server)
+	config := conf.GetDbConfig()
 	app := &handler.App{}
 	app.Initialize(config)
 	app.Run(":9090")

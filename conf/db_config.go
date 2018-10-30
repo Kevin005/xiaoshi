@@ -12,7 +12,7 @@ type DBConfig struct {
 	Charset  string
 }
 
-func GetConfig() *Config {
+func GetDbConfig() *Config {
 	return &Config{
 		&DBConfig{
 			Dialect:  "mysql",
