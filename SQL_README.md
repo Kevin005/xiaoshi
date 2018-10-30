@@ -1,5 +1,5 @@
 2.反馈表
-```
+```sql
 CREATE TABLE t_feedback (
 id int(11) NOT NULL AUTO_INCREMENT COMMENT '反馈ID',
 email varchar(255) DEFAULT NULL COMMENT '邮箱地址',
@@ -9,7 +9,7 @@ ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
 
 1.用户表
-```
+```sql
 CREATE TABLE t_user (
  id int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
  email varchar(255) NOT NULL COMMENT '用户邮箱',
@@ -24,7 +24,7 @@ CREATE TABLE t_user (
 ```
  
  或者
- ```
+ ```sql
   CREATE TABLE t_user (
   id int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   create_time varchar(255) DEFAULT NULL COMMENT '创建时间',
