@@ -9,9 +9,11 @@ import (
 	"time"
 	"xiaoshi/conf"
 	"xiaoshi/util"
+	log "github.com/alecthomas/log4go"
 )
 
 func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	log.Info("register start")
 	user := &model.Users{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(user); err != nil {

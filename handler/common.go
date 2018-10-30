@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"xiaoshi/model"
 	"xiaoshi/conf"
+	log "github.com/alecthomas/log4go"
 )
 
 func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
@@ -18,6 +19,7 @@ func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(status)
 	w.Write([]byte(response))
+	log.Info(string(response[:]))
 	//todo 可以统一返回json {"success":0}格式
 }
 
