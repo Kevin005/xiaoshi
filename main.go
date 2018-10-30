@@ -13,7 +13,7 @@ import (
 var cfgYaml = &conf.ConfigYaml{} //全局配置文件
 
 func init() {
-	conf.GetCfgYaml(cfgYaml)
+	conf.LoadCfgYaml(cfgYaml)
 }
 
 func main() {
@@ -23,11 +23,17 @@ func main() {
 		log.LoadConfiguration(*logcf)
 	}
 	log.Info("======= main start =======")
-	//log.Info("ip is %s", cfgYaml.Server)
-	config := conf.GetDbConfig()
 	app := &handler.App{}
-	app.Initialize(config)
-	app.Run(":9090")
+	app.Initialize(&conf.Config{
+		&conf.DBConfig{
+			Dialect:  cfgYaml.DB.Dialect,
+			Username: cfgYaml.DB.Username,
+			Password: cfgYaml.DB.Password,
+			DBName:   cfgYaml.DB.DBName,
+			Charset:  cfgYaml.DB.Charset,
+		},
+	})
+	app.Run(":" + cfgYaml.Server.Port)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
 	<-c

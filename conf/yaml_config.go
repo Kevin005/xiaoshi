@@ -10,11 +10,21 @@ var cfgPar []byte
 
 type ConfigYaml struct {
 	Server serverInfo
-	Test      string
+	DB dbInfo
+	Test   string
 }
 
 type serverInfo struct {
-	Ip string
+	Ip   string
+	Port string
+}
+
+type dbInfo struct {
+	Dialect  string
+	Username string
+	Password string
+	DBName   string
+	Charset  string
 }
 
 func init() {
@@ -25,7 +35,7 @@ func init() {
 	}
 }
 
-func GetCfgYaml(cfg *ConfigYaml) {
+func LoadCfgYaml(cfg *ConfigYaml) {
 	if err := yaml.Unmarshal(cfgPar, &cfg); err != nil {
 		log.Error(err.Error())
 	}
