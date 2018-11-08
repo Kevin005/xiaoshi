@@ -17,12 +17,12 @@ func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	user := &model.Users{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(user); err != nil {
-		respondError(w, conf.StatusBadRequest, err.Error())
+		respondError(w, conf.STATUS_BAD_REQUEST, err.Error())
 	}
 	defer r.Body.Close()
 	user.CreateTime = time.Now().Unix()
 	if err := db.Save(user).Error; err != nil {
-		respondError(w, conf.StatusInternalServerError, err.Error())
+		respondError(w, conf.STATUS_INTERNAL_SERVER_ERROR, err.Error())
 		return
 	}
 	//设置到redis
@@ -34,7 +34,7 @@ func Register(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		},
 		Data: user,
 	}
-	respondJSON(w, conf.StatusCreated, respUser)
+	respondJSON(w, conf.STATUS_CREATED, respUser)
 }
 
 func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respUser := response.RespUser{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
-		respondError(w, conf.StatusBadRequest, err.Error())
+		respondError(w, conf.STATUS_BAD_REQUEST, err.Error())
 	}
 	defer r.Body.Close()
 	if hadToken, _ := checkToken(db, user.Token); hadToken {
@@ -54,13 +54,13 @@ func Login(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respUser.Data = respUserData
 		respUser.Message = "pass"
 		respUser.Success = "0"
-		respondJSON(w, conf.StatusCreated, respUser)
+		respondJSON(w, conf.STATUS_CREATED, respUser)
 	} else {
 		respUser := response.RespUser{}
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "use not found"
-		respondJSON(w, conf.StatusGone, respUser)
+		respondJSON(w, conf.STATUS_GONE, respUser)
 	}
 }
 
@@ -70,7 +70,7 @@ func EditUserInfo(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respUser := response.RespUser{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&reqUser); err != nil {
-		respondError(w, conf.StatusBadRequest, err.Error())
+		respondError(w, conf.STATUS_BAD_REQUEST, err.Error())
 	}
 	defer r.Body.Close()
 	if hadToken, dbUser := checkToken(db, headerToken); hadToken {
@@ -80,13 +80,13 @@ func EditUserInfo(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respUser.Data = respUserData
 		respUser.Message = "pass"
 		respUser.Success = "0"
-		respondJSON(w, conf.StatusCreated, respUser)
+		respondJSON(w, conf.STATUS_CREATED, respUser)
 	} else {
 		respUser := response.RespUser{}
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "use not found"
-		respondJSON(w, conf.StatusGone, respUser)
+		respondJSON(w, conf.STATUS_GONE, respUser)
 	}
 }
 
@@ -95,7 +95,7 @@ func EditPwd(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respUser := response.RespUser{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&reqUser); err != nil {
-		respondError(w, conf.StatusBadRequest, err.Error())
+		respondError(w, conf.STATUS_BAD_REQUEST, err.Error())
 	}
 	defer r.Body.Close()
 	if reqUser.Token == "" {
@@ -103,18 +103,18 @@ func EditPwd(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "token not empty"
-		respondJSON(w, conf.StatusGone, respUser)
+		respondJSON(w, conf.STATUS_GONE, respUser)
 	} else if hadPhone, dbUser := checkPhoneNumber(db, reqUser.PhoneNumber); hadPhone {
 		db.Model(&dbUser).Update("Token", reqUser.Token)
 		respUser.Data = reqUser.Token
 		respUser.Message = "pass"
 		respUser.Success = "0"
-		respondJSON(w, conf.StatusCreated, respUser)
+		respondJSON(w, conf.STATUS_CREATED, respUser)
 	} else {
 		respUser := response.RespUser{}
 		respUser.Message = "reject"
 		respUser.Success = "1"
 		respUser.Data = "use not found"
-		respondJSON(w, conf.StatusGone, respUser)
+		respondJSON(w, conf.STATUS_GONE, respUser)
 	}
 }

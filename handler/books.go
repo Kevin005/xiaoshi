@@ -19,7 +19,7 @@ func CreateBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		reqBook := request.ReqBooks{}
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&reqBook); err != nil {
-			respondError(w, conf.StatusBadRequest, err.Error())
+			respondError(w, conf.STATUS_BAD_REQUEST, err.Error())
 		}
 		defer r.Body.Close()
 		//开启事务
@@ -31,7 +31,7 @@ func CreateBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		book.PageTotal = reqBook.PageTotal
 		book.Image = reqBook.Image
 		if err := tx.Save(&book).Error; err != nil {
-			respondError(w, conf.StatusInternalServerError, err.Error())
+			respondError(w, conf.STATUS_INTERNAL_SERVER_ERROR, err.Error())
 			//回滚事务
 			tx.Rollback()
 			return
@@ -42,7 +42,7 @@ func CreateBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		myBook.Private = reqBook.Private
 		myBook.Progress = "0"
 		if err := tx.Save(&myBook).Error; err != nil {
-			respondError(w, conf.StatusInternalServerError, err.Error())
+			respondError(w, conf.STATUS_INTERNAL_SERVER_ERROR, err.Error())
 			//回滚事务
 			tx.Rollback()
 			return
@@ -57,11 +57,11 @@ func CreateBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respBook.Data = respBookData
 		respBook.Message = "pass"
 		respBook.Success = "0"
-		respondJSON(w, conf.StatusCreated, respBook)
+		respondJSON(w, conf.STATUS_CREATED, respBook)
 	} else {
 		respBook.Message = "reject"
 		respBook.Success = "1"
-		respondJSON(w, conf.StatusInternalServerError, respBook)
+		respondJSON(w, conf.STATUS_INTERNAL_SERVER_ERROR, respBook)
 	}
 }
 
@@ -88,10 +88,10 @@ func GetMyBooks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		}
 		respBook.Data = respBookData
 		respBook.Success = "0"
-		respondJSON(w, conf.StatusCreated, respBook)
+		respondJSON(w, conf.STATUS_CREATED, respBook)
 	} else {
 		respBook.Message = "reject"
 		respBook.Success = "1"
-		respondJSON(w, conf.StatusInternalServerError, respBook)
+		respondJSON(w, conf.STATUS_INTERNAL_SERVER_ERROR, respBook)
 	}
 }

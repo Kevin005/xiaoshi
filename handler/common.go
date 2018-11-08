@@ -12,7 +12,7 @@ import (
 func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
-		w.WriteHeader(conf.StatusInternalServerError)
+		w.WriteHeader(conf.STATUS_INTERNAL_SERVER_ERROR)
 		w.Write([]byte(err.Error()))
 		return
 	}
