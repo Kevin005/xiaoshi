@@ -3,8 +3,8 @@ package conf
 import "net/http"
 
 const (
-	StatusCreated             = http.StatusCreated
-	StatusBadRequest          = http.StatusBadRequest
-	StatusInternalServerError = http.StatusInternalServerError
-	StatusGone                = http.StatusGone
+	STATUS_CREATED               = http.StatusCreated
+	STATUS_BAD_REQUEST           = http.StatusBadRequest
+	STATUS_INTERNAL_SERVER_ERROR = http.StatusInternalServerError
+	STATUS_GONE                  = http.StatusGone
 )
