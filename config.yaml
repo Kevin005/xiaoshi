@@ -3,7 +3,7 @@
   port: 9090
  db:
   dialect:  mysql
-  username: root
+  username: kevin
   password: 12345678
   dbname:   user
   charset:  utf8
