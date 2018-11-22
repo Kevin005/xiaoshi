@@ -1,68 +1,156 @@
 package handler
 
 import (
+	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"net/http"
-	"xiaoshi/model/response"
-	"xiaoshi/model"
-	"encoding/json"
-	"xiaoshi/model/request"
-	"github.com/gorilla/mux"
 	"xiaoshi/conf"
+	"xiaoshi/model"
+	"xiaoshi/model/request"
+	"xiaoshi/model/response"
 )
 
-func CreateBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("X-AccessToken")
-	respBook := response.RespBook{}
-	if hadToken, user := checkToken(db, token); hadToken {
-		//get request book
-		reqBook := request.ReqBooks{}
-		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&reqBook); err != nil {
-			respondError(w, conf.STATUS_BAD_REQUEST, err.Error())
+type handBooks struct {
+	rjs RespI
+}
+
+func (h *handBooks) CreateBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	t := r.Header.Get("X-AccessToken")
+	h.rjs = &RespJs{w}
+	hadToken, user := checkToken(db, t)
+	if !hadToken {
+		rbk := response.RespBook{
+			RespModel: response.RespModel{
+				Message: "reject",
+				Success: "1",
+			},
 		}
-		defer r.Body.Close()
-		//开启事务
-		tx := db.Begin()
-		//save book
-		book := model.Books{}
-		book.BookName = reqBook.BookName
-		book.Author = reqBook.Author
-		book.PageTotal = reqBook.PageTotal
-		book.Image = reqBook.Image
-		if err := tx.Save(&book).Error; err != nil {
-			respondError(w, conf.STATUS_INTERNAL_SERVER_ERROR, err.Error())
-			//回滚事务
-			tx.Rollback()
-			return
-		}
-		myBook := model.MyBooks{}
-		myBook.BookId = book.ID
-		myBook.UserId = user.ID
-		myBook.Private = reqBook.Private
-		myBook.Progress = "0"
-		if err := tx.Save(&myBook).Error; err != nil {
-			respondError(w, conf.STATUS_INTERNAL_SERVER_ERROR, err.Error())
-			//回滚事务
-			tx.Rollback()
-			return
-		}
-		//提交事务
-		tx.Commit()
-		respBookData := response.RespBookData{}
-		respBookData.UserId = user.ID
-		respBookData.BookId = book.ID
-		respBookData.BookAuthor = book.Author
-		respBookData.BookName = book.BookName
-		respBook.Data = respBookData
-		respBook.Message = "pass"
-		respBook.Success = "0"
-		respondJSON(w, conf.STATUS_CREATED, respBook)
-	} else {
-		respBook.Message = "reject"
-		respBook.Success = "1"
-		respondJSON(w, conf.STATUS_INTERNAL_SERVER_ERROR, respBook)
+		h.rjs.ServerError(rbk)
+		return
 	}
+	//get request book
+	reqBook := request.ReqBooks{}
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&reqBook); err != nil {
+		h.rjs.BadRequest(err.Error())
+	}
+	defer r.Body.Close()
+
+	//开启事务
+	tx := db.Begin()
+	//save book
+	bk := model.Books{
+		BookName:  reqBook.BookName,
+		Author:    reqBook.Author,
+		PageTotal: reqBook.PageTotal,
+		Image:     reqBook.Image,
+	}
+	if err := tx.Save(&bk).Error; err != nil {
+		respondError(w, conf.STATUS_INTERNAL_SERVER_ERROR, err.Error())
+
+		h.rjs.ServerError(err.Error())
+		//回滚事务
+		tx.Rollback()
+		return
+	}
+	mbk := model.MyBooks{
+		BookId:   bk.ID,
+		UserId:   user.ID,
+		Private:  reqBook.Private,
+		Progress: "0",
+	}
+	if err := tx.Save(&mbk).Error; err != nil {
+		h.rjs.ServerError(err.Error())
+		//回滚事务
+		tx.Rollback()
+		return
+	}
+	//提交事务
+	tx.Commit()
+
+	rbk := response.RespBook{
+		Data: response.RespBookData{
+			UserId:     user.ID,
+			BookId:     bk.ID,
+			BookAuthor: bk.Author,
+			BookName:   bk.BookName,
+		},
+		RespModel: response.RespModel{
+			Message: "pass",
+			Success: "0",
+		},
+	}
+	h.rjs.Normal(rbk)
+}
+
+func CreateBook(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	t := r.Header.Get("X-AccessToken")
+	rsp := &RespJs{w}
+	hadToken, user := checkToken(db, t)
+	if !hadToken {
+		rbk := response.RespBook{
+			RespModel: response.RespModel{
+				Message: "reject",
+				Success: "1",
+			},
+		}
+		rsp.ServerError(rbk)
+		return
+	}
+	//get request book
+	reqBook := request.ReqBooks{}
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&reqBook); err != nil {
+		rsp.BadRequest(err.Error())
+	}
+	defer r.Body.Close()
+
+	//开启事务
+	tx := db.Begin()
+	//save book
+	bk := model.Books{
+		BookName:  reqBook.BookName,
+		Author:    reqBook.Author,
+		PageTotal: reqBook.PageTotal,
+		Image:     reqBook.Image,
+	}
+	if err := tx.Save(&bk).Error; err != nil {
+		respondError(w, conf.STATUS_INTERNAL_SERVER_ERROR, err.Error())
+
+		rsp.ServerError(err.Error())
+		//回滚事务
+		tx.Rollback()
+		return
+	}
+	mbk := model.MyBooks{
+		BookId:   bk.ID,
+		UserId:   user.ID,
+		Private:  reqBook.Private,
+		Progress: "0",
+	}
+	if err := tx.Save(&mbk).Error; err != nil {
+		rsp.ServerError(err.Error())
+		//回滚事务
+		tx.Rollback()
+		return
+	}
+	//提交事务
+	tx.Commit()
+
+	rbk := response.RespBook{
+		Data: response.RespBookData{
+			UserId:     user.ID,
+			BookId:     bk.ID,
+			BookAuthor: bk.Author,
+			BookName:   bk.BookName,
+		},
+		RespModel: response.RespModel{
+			Message: "pass",
+			Success: "0",
+		},
+	}
+	rsp.Normal(rbk)
 }
 
 func GetMyBooks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {

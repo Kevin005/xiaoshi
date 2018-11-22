@@ -1,13 +1,35 @@
 package handler
 
 import (
-	"net/http"
 	"encoding/json"
-	"github.com/jinzhu/gorm"
-	"xiaoshi/model"
-	"xiaoshi/conf"
 	log "github.com/alecthomas/log4go"
+	"github.com/jinzhu/gorm"
+	"net/http"
+	"xiaoshi/conf"
+	"xiaoshi/model"
 )
+
+type RespI interface {
+	Normal(payload interface{})
+	ServerError(payload interface{})
+	BadRequest(payload interface{})
+}
+
+type RespJs struct {
+	w http.ResponseWriter
+}
+
+func (r *RespJs) Normal(payload interface{}) {
+	respondJSON(r.w, conf.STATUS_CREATED, payload)
+}
+
+func (r *RespJs) ServerError(payload interface{}) {
+	respondJSON(r.w, conf.STATUS_INTERNAL_SERVER_ERROR, payload)
+}
+
+func (r *RespJs) BadRequest(payload interface{}) {
+	respondJSON(r.w, conf.STATUS_BAD_REQUEST, payload)
+}
 
 func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 	response, err := json.Marshal(payload)
