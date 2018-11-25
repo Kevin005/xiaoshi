@@ -5,6 +5,22 @@ import (
 	"unsafe"
 )
 
+//===========================神奇的变量函数 start
+type StringI interface {
+	Len(s string) int
+}
+
+func (s str) Len(str string) int {
+	return len(str)
+}
+
+type str func(b string) interface{}
+
+var Str str = func(s string) interface{} {
+	return s
+}
+//===========================神奇的变量函数 end
+
 //interface转为string
 func interface2string(inter interface{}) string {
 	tempStr := ""
