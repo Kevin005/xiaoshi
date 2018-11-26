@@ -11,15 +11,3 @@ type DBConfig struct {
 	DBName   string
 	Charset  string
 }
-
-func LoadDbConfig() *Config {
-	return &Config{
-		&DBConfig{
-			Dialect:  "mysql",
-			Username: "root",
-			Password: "12345678",
-			DBName:   "user",
-			Charset:  "utf8",
-		},
-	}
-}
