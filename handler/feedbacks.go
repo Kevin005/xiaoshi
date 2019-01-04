@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"net/http"
-	"github.com/jinzhu/gorm"
-	"xiaoshi/model"
 	"encoding/json"
-	"xiaoshi/model/response"
+	"github.com/jinzhu/gorm"
+	"net/http"
 	"xiaoshi/conf"
+	"xiaoshi/model"
+	"xiaoshi/model/response"
 )
 
 func CreateFeedback(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -50,6 +50,6 @@ func GetAllFeedback(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respFeedbacks.Message = "reject"
 		respFeedbacks.Success = "1"
 		respFeedbacks.Data = "user not found"
-		respondJSON(w, conf.STATUS_INTERNAL_SERVER_ERROR, respFeedbacks)
+		respondJSON(w, conf.STATUS_CREATED, respFeedbacks)
 	}
 }
