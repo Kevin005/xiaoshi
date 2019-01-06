@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"net/http"
 	"xiaoshi/conf"
@@ -52,4 +53,12 @@ func GetAllFeedback(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respFeedbacks.Data = "user not found"
 		respondJSON(w, conf.STATUS_CREATED, respFeedbacks)
 	}
+}
+
+// just test GET
+func GetNsqMsg(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	msg := r.Form["msg"]
+	fmt.Println(msg)
+	respondJSON(w, conf.STATUS_CREATED, msg)
 }

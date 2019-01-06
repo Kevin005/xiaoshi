@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"log"
 	"net/http"
-	"fmt"
-	"xiaoshi/model"
 	"xiaoshi/conf"
+	"xiaoshi/model"
 )
 
 type App struct {
@@ -32,6 +32,8 @@ func (a *App) Initialize(config *conf.Config) {
 }
 
 func (a *App) setRouters() {
+	a.Get("/xiaoshi/nsq/msg", a.GetNsqMsg)
+	a.Get("/xiaoshi/feedback", a.GetAllFeedback)
 	/** 意见反馈 */
 	a.Post("/xiaoshi/feedback", a.CreateFeedback)
 	a.Get("/xiaoshi/feedback", a.GetAllFeedback)
@@ -127,4 +129,9 @@ func (a *App) CreateBook(w http.ResponseWriter, r *http.Request) {
  */
 func (a *App) getMyBooks(w http.ResponseWriter, r *http.Request) {
 	GetMyBooks(a.DB, w, r)
+}
+
+// just test GET
+func (a *App) GetNsqMsg(w http.ResponseWriter, r *http.Request) {
+	GetNsqMsg(w, r)
 }
